@@ -117,7 +117,7 @@ void getDistances()
 
 
 // -------------------- OBSŁUGA SILNIKÓW ---------------------------------
-void checkDist()
+void checkDirection()
 {
   // możliwe kombinacje nacisniętych klawiszy 
   // 0 - [W}, 1 - [AW], 2 - [WD], 3 - [A], 4 - [D]
