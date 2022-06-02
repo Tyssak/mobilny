@@ -2,7 +2,7 @@
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 
-// define pins 
+// --------- ZDEFINIOWANIE PINÓW --------
 #define pMotoVR D13
 #define pMotoVL D8
 
@@ -23,30 +23,30 @@
 const int NUM_SLOTS = 20;
 const float WHEEL_R = 33.1;
 
-// ap server settings 
+// ------------ DANE SERWERA ---------------
 const char *ssid = "esp";
 const char *password = "1234qwerty";
 ESP8266WebServer server(80);
 WiFiEventHandler stationConnectedHandler;
 WiFiEventHandler stationDisconnectedHandler;
 
-// other variables 
+// ------------ INNE DANE ----------------
 int dir = 0, inDir = 0;
 boolean ledON = false;
 long prev_check = 0, check_interval = 100;
 float dFront = 0, dLeft = 0, dRight = 0; 
 float vR = 0, vL = 0;
+int sensor_ind = 0;
 
 int countR = 0, countL = 0, prevCR = 0, prevCL = 0, dCL = 0, dCR = 0;
 
-// PID
+// ------------- PID -----------------
 const float K = 0.065, Ki = 0.025, Kd = 0.008;
 
 float errL = 0, p_errL = 0, sum_errL = 0, errR = 0, p_errR = 0, sum_errR = 0;
 float uR = 0, uL = 0, VRr = 0, VLr = 0;
-int sensor_ind = 0;
 
-
+// ----------- PRZERWANIA ENKODERÓW ---------
 IRAM_ATTR void incL()
 {
   countL++;
@@ -57,7 +57,9 @@ IRAM_ATTR void incR()
   countR++;
 }
 
-void setup() {
+// ----------- INICJALIZACJA -----------
+void setup() 
+{
   delay(1000);
   Serial.begin(115200);
   Serial.println();
@@ -112,16 +114,22 @@ void setup() {
   //testPWMControl();
 }
 
-void loop() {
+// -------------- PĘTLA GŁÓWNA -----------
+void loop() 
+{
+  controls();
   server.handleClient();
-  rec_get();
+
+  //rec_get();
+  
+  // ------ PRZYJMOWANIE DANYCH Z USB ------
   /*if (Serial.available()) 
   {
     inDir = Serial.read(); 
     checkDirection();
   }*/
-  controls();
 
+  // ------- AKTUALIZACJE DANYCH Z CZUJNIKÓW -------
   if (millis() - prev_check > check_interval)
   {
     getDistances();
@@ -131,8 +139,9 @@ void loop() {
     prevCL = countL;
     prevCR = countR;
     prev_check = millis();
-
     
+    // -------- DEBUGGOWANIE W KONSOLI ------------
+    /*
     Serial.print("Direction = ");
     Serial.println(dir);
 
@@ -144,7 +153,7 @@ void loop() {
     Serial.print(" , L = ");
     Serial.println(dLeft);
 
-    /*
+    
     Serial.println(" ----- v ------ ");
     Serial.print("vR = ");
     Serial.print(vR);
@@ -155,17 +164,11 @@ void loop() {
     Serial.print(uR);
     Serial.print(", uL = ");
     Serial.println(uL);
-    
-
     */
   } 
 }
 
-   
-
-
-// ---------------------- OBSŁUGA CZUJNIKÓW ------------------------------
-
+// ------------------- STEROWANIE SILNIKAMI ------------
 void controls()
 {
   p_errL = errL;
@@ -196,6 +199,7 @@ void controls()
   analogWrite(pMotoVL, uL);
 }
 
+// ------------------ OBSŁUGA CZUJNIKÓW -----------------------
 void getDistances()
 {
   digitalWrite(pTrig, LOW);
@@ -205,26 +209,37 @@ void getDistances()
   digitalWrite(pTrig, LOW);
 
   if(sensor_ind == 0)
+  {
     dFront= pulseIn(pEchoF, HIGH)/58.2;
+    if(dFront > 100)
+       dFront = 0;
+  }
 
   if(sensor_ind == 1)
+  {
     dLeft = pulseIn(pEchoL, HIGH)/58.2;
+    if(dLeft > 100)
+       dLeft = 0;
+  }
 
   if(sensor_ind == 2)
+  {
     dRight = pulseIn(pEchoR, HIGH)/58.2;
+    if(dRight > 100)
+       dRight = 0;
+  }
+
 
   sensor_ind = (sensor_ind + 1)%3;
 }
 
-
-// -------------------- OBSŁUGA SILNIKÓW ---------------------------------
+// -------------------- WYBRANIE KIERUNKU JAZDY ---------------------------------
 void checkDirection()
 {
   // możliwe kombinacje nacisniętych klawiszy 
   // 1 - [W}, 2 - [AW], 3 - [WD], 4 - [A], 5 - [D]
   // 6 - [S]. 7 - [AS], 8 - [SD], 0 - NULL
- 
-  
+
   // ustawienie odpowiednich wartosci na pinach IN1, IN2, IN3, IN4 mostka H
   if (inDir != dir) // zeby wklepac wartosci tylko jak sie zmienia sterowanie a nie w kazdej iteracji
   {
@@ -279,6 +294,7 @@ void checkDirection()
   }
 }
 
+// ------------- USTAWIENIE WARTOŚCI ZADANYCH ------------
 void setMotors(int num_dir)
 {
   uR = 0;
@@ -322,42 +338,29 @@ void setMotors(int num_dir)
 // ------------- PRZYJĘCIE DANYCH Z APLIKACJI (HTTP GET) ---------------
 void rec_get()
 {
-  
-      String dataMes = "GET /?dF=" + String(dFront) + " HTTP/1.0 \r\n";
-      /*
-      String(dir) + "," + String(dFront) + 
-      "," + String(dLeft) + "," + String(dRight) + "," + 
-      String(countR) + "," + String(countL) + "," + 
-      String(dCR) + "," + String(dCL) + "\n";
-      */
+    // ---------- TEST 1 ---------- //
+    
+    String dataMes = "GET /?dF=" + String(dFront) + " HTTP/1.0 \r\n";
+    server.send(200, "text/html", dataMes);
 
-     // wysłanie danych z czujników odległości
-      server.send(200, "text/html", dataMes);
-     /*
+    // ---------- TEST 2 ---------- //
+
+    /*
+      
       HTTPClient http;
 
       String serverPath = String(WiFi.softAPIP()) + "?dF=" + String(dFront);
-      
-      // Your Domain name with URL path or IP address with path
       http.begin(serverPath.c_str());
-      
-      // Send HTTP GET request
       int httpResponseCode = http.GET();
       
-      if (httpResponseCode>0) {
-        Serial.print("HTTP Response code: ");
-        Serial.println(httpResponseCode);
-        String payload = http.getString();
-        Serial.println(payload);
-      }
-      else {
-        Serial.print("Error code: ");
-        Serial.println(httpResponseCode);
-      }
-      // Free resources
+      if (httpResponseCode > 0) 
+        server.send(200, "text/html", "HTTP Response code: " + String(httpResponseCode));
+      else 
+        server.send(200, "text/html", "Error code: " + String(httpResponseCode));
       http.end();
   */
-
+  
+  // ------------ PRZYJMOWANIE DANYCH ----------
   // przyjęcie informacji wysyłanej przez apke 
   inDir = atoi(server.arg("dir").c_str());
   checkDirection();
