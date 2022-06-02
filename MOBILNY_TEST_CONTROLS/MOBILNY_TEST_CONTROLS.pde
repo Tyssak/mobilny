@@ -109,7 +109,11 @@ void mouseReleased()
     resetAll();
   
   if(mouseX > width - offx && mouseY > 6*offy && mouseY < 5*offy + 3*offy/2)
-    resetAll();
+  {
+     dataMemory = "GET /?dir=" + str(byte(10)) + " HTTP/1.0 \r\n";
+     c = new Client(this, "192.168.4.1", 80); // Connect to server on port 80
+     c.write(dataMemory);
+  }
     
   if(mouseX > width - offx && mouseY > 5*offy + 3*offy/2 && mouseY < 7*offy)
     screen_lock = !screen_lock;
@@ -117,6 +121,9 @@ void mouseReleased()
   if(mouseX > width - 2*offx && mouseY > 7*offy)
   {
     manual = !manual;
+    dataMemory = "GET /?dir=" + str(byte(9)) + " HTTP/1.0 \r\n";
+    c = new Client(this, "192.168.4.1", 80); // Connect to server on port 80
+    c.write(dataMemory);
   }
   
    if(manual)
@@ -191,6 +198,16 @@ void getData()
   }
 }
 
+void resetAll()
+{
+  if(!simul)
+  {
+    dataMemory = "GET /?dir=" + str(byte(11)) + " HTTP/1.0 \r\n";
+    c = new Client(this, "192.168.4.1", 80); // Connect to server on port 80
+    c.write(dataMemory);
+  }
+}
+
 void serialEvent(Serial port) 
 {
   inStr = port.readString(); 
@@ -215,15 +232,3 @@ void serialEvent(Serial port)
   sendData();
   */
 } 
-
-void resetAll()
-{
-  if(!simul)
-  {
-    port.write(0xff);
-    port.write(0xff);
-    port.write(0xcc);
-    port.write(0xbb);
-    port.write(0xaa);
-  }
-}
