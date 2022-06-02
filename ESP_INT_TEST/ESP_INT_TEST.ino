@@ -322,13 +322,41 @@ void setMotors(int num_dir)
 // ------------- PRZYJĘCIE DANYCH Z APLIKACJI (HTTP GET) ---------------
 void rec_get()
 {
-  String dataMes = String(dir) + "," + String(dFront) + 
-  "," + String(dLeft) + "," + String(dRight) + "," + 
-  String(countR) + "," + String(countL) + "," + 
-  String(dCR) + "," + String(dCL) + "\n";
+  
+      String dataMes = "GET /?dF=" + String(dFront) + " HTTP/1.0 \r\n";
+      /*
+      String(dir) + "," + String(dFront) + 
+      "," + String(dLeft) + "," + String(dRight) + "," + 
+      String(countR) + "," + String(countL) + "," + 
+      String(dCR) + "," + String(dCL) + "\n";
+      */
 
-  // wysłanie danych z czujników odległości
-  server.send(200, "text", dataMes);
+     // wysłanie danych z czujników odległości
+      server.send(200, "text/html", dataMes);
+     /*
+      HTTPClient http;
+
+      String serverPath = String(WiFi.softAPIP()) + "?dF=" + String(dFront);
+      
+      // Your Domain name with URL path or IP address with path
+      http.begin(serverPath.c_str());
+      
+      // Send HTTP GET request
+      int httpResponseCode = http.GET();
+      
+      if (httpResponseCode>0) {
+        Serial.print("HTTP Response code: ");
+        Serial.println(httpResponseCode);
+        String payload = http.getString();
+        Serial.println(payload);
+      }
+      else {
+        Serial.print("Error code: ");
+        Serial.println(httpResponseCode);
+      }
+      // Free resources
+      http.end();
+  */
 
   // przyjęcie informacji wysyłanej przez apke 
   inDir = atoi(server.arg("dir").c_str());
