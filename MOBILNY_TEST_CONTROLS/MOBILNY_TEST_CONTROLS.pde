@@ -50,6 +50,7 @@ void setup()
    b_vL = 0;
    
    inStr = "";
+
    // Simul true connects to serial port com5
    simul = false; //true;  //false
    wifi = true;
@@ -70,20 +71,15 @@ void setup()
    wall_pts = new ArrayList<PVector>();
    wall_w = 3*cm;
    
-   // random points
-   //for(int i = 0; i < 50; i++)
-   //  wall_pts.add(new PVector(random(0,200) - 200, random(0,200) - 200));
-   
-   println(wall_pts.size());
-   
    // connect to port only without simul mode
    if(!simul)
      port = new Serial(this, "COM5", 115200);
-     
+    
+   // connect to server in wifi mode 
    if(wifi)
    {
      c = new Client(this, "192.168.4.1", 80); // Replace with your server's IP and port
-     c.write("GET /Processing sketch connected. HTTP/1.0\r\n"); 
+     c.write("GET jajo HTTP/1.0\r\n"); 
    }  
 }
 
@@ -92,7 +88,8 @@ void draw()
 {
   background(240);
   //processData();
-  if (wifi && c.active() && (frameCount % 20 == 0)) 
+
+  if (wifi && (frameCount % 20 == 0)) 
   {
     getData();
     sendData(); 
@@ -192,6 +189,7 @@ void sendData()
 
 void getData()
 {
+  c.active();
   c = new Client(this, "192.168.4.1", 80); // Connect to server on port 80
   if (c.available() > 0) 
   {
