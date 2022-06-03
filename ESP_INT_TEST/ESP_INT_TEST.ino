@@ -6,7 +6,7 @@
 #define pMotoVR D13
 #define pMotoVL D8
 
-#define pOut1 A0
+#define pOut1 D14
 #define pOut2 D11
 #define pOut3 D10
 #define pOut4 D9
@@ -15,7 +15,7 @@
 
 #define pEchoF D2
 #define pEchoL D7
-#define pEchoR D5
+#define pEchoR D0
 
 #define pEncL D3
 #define pEncR D4
@@ -338,7 +338,13 @@ void setMotors(int num_dir)
 // ------------- PRZYJĘCIE DANYCH Z APLIKACJI (HTTP GET) ---------------
 void rec_get()
 {
-    // ---------- TEST 1 ---------- //
+  // ------------ PRZYJMOWANIE DANYCH ----------
+  // przyjęcie informacji wysyłanej przez apke 
+  inDir = atoi(server.arg("dir").c_str());
+  checkDirection();
+
+  // ------------- WYSYŁANIE DANYCH ------------
+  // ---------- TEST 1 ---------- //
     
     String dataMes = "GET /?dF=" + String(dFront) + " HTTP/1.0 \r\n";
     server.send(200, "text/html", dataMes);
@@ -360,10 +366,6 @@ void rec_get()
       http.end();
   */
   
-  // ------------ PRZYJMOWANIE DANYCH ----------
-  // przyjęcie informacji wysyłanej przez apke 
-  inDir = atoi(server.arg("dir").c_str());
-  checkDirection();
 }
 
 // ---------- INFORMACJE O PODŁĄCZONYCH STACJACH -------------------------
