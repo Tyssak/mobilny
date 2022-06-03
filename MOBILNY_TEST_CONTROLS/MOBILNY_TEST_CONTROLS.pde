@@ -94,8 +94,8 @@ void draw()
   //processData();
   if (wifi && c.active() && (frameCount % 20 == 0)) 
   {
-    sendData();
     getData();
+    sendData(); 
   }
     
   movBot();
