@@ -1,34 +1,37 @@
+// -------- SERYJNE DO DEBUGGOWANIA ------
 import processing.serial.*;
-// serial communication
 Serial port;  
 String inStr;
 
+// --------- ZMIENNE DO WIFI ---------
 import processing.net.*;
 Client c;
 String []bot_strings;
 String input, dataMemory;
 int []data_in;
 
-// bot and drawing
+// ---------- STAŁE DO ODTWARZANIA --------
 final float cm = 1;  //ile pixeli to 1 cm 
 final float dt = 0.05;
 
+// --------- INNE ZMIENNE -----------
 int offx, offy, off_c;
 boolean simul, manual, screen_lock, wifi;
 
 byte out, dir, out_dir;
 
-// robot data
+// ------- DANE ROBOTA ----------
 PVector b_pos, b_vel;
 float b_vR, b_vL;
 float b_ang, b_width;
 int b_data_size;
 int []b_data;
 
-// maze drawing
+// ----------- DANE LABIRYNTU --------
 ArrayList <PVector> wall_pts;
 float wall_w;
 
+// ------- INICJALIZACJA ---------
 void setup()
 {
    size(400, 600);
@@ -47,8 +50,8 @@ void setup()
    b_vL = 0;
    
    inStr = "";
-   
-   simul = true;  //false
+   // Simul true connects to serial port com5
+   simul = false; //true;  //false
    wifi = true;
    manual = true;
    screen_lock = false;
@@ -81,10 +84,10 @@ void setup()
    {
      c = new Client(this, "192.168.4.1", 80); // Replace with your server's IP and port
      c.write("GET /Processing sketch connected. HTTP/1.0\r\n"); 
-   }
-   
+   }  
 }
 
+// ---------- PĘTLA GŁÓWNA ----------
 void draw()
 {
   background(240);
