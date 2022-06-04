@@ -1,13 +1,13 @@
 // --------- ZMIENNE DO WIFI ---------
 import processing.net.*;
 Client c;
-String []bot_strings;
-String input, dataMemory;
+String input;
 int []data_in;
 
 // ---------- STAŁE DO ODTWARZANIA --------
 final float cm = 1;  //ile pixeli to 1 cm 
 final float dt = 0.05;
+final int FRAMEINT = 10;
 
 // --------- INNE ZMIENNE -----------
 int offx, offy, off_c;
@@ -74,18 +74,18 @@ void setup()
 void draw()
 {
   background(240);
-  //processData();
-  getData();
-
-  if (wifi && (frameCount % 20 == 0)) 
+  
+  // ---- ODBIERANIE DANYCH ----
+  if (wifi && (frameCount % FRAMEINT == 0)) 
   {
     getData();
     sendData(); 
   }
-    
+
+  // ---- UPDATE BOTA ----
   movBot();
   
-  // display
+  // ---- RYSOWANIE ----
   drawBot();
   drawMaze();
   drawInterface();
@@ -93,10 +93,14 @@ void draw()
 
 void mouseReleased()
 {
-  if(mouseX > width - offx && mouseY > 5*offy + offy/2 && mouseY < 6*offy)
-    resetAll();
+  if(mouseX > width - offx && mouseY > 5*offy + offy/2 && mouseY < 6*offy && wifi)
+  {
+    dataMemory = "GET /?dir=" + str(byte(11)) + " HTTP/1.0 \r\n";
+    c = new Client(this, "192.168.4.1", 80); // Connect to server on port 80
+    c.write(dataMemory);
+  }
   
-  if(mouseX > width - offx && mouseY > 6*offy && mouseY < 5*offy + 3*offy/2)
+  if(mouseX > width - offx && mouseY > 6*offy && mouseY < 5*offy + 3*offy/2 && wifi)
   {
      dataMemory = "GET /?dir=" + str(byte(10)) + " HTTP/1.0 \r\n";
      c = new Client(this, "192.168.4.1", 80); // Connect to server on port 80
@@ -106,7 +110,7 @@ void mouseReleased()
   if(mouseX > width - offx && mouseY > 5*offy + 3*offy/2 && mouseY < 7*offy)
     screen_lock = !screen_lock;
    
-  if(mouseX > width - 2*offx && mouseY > 7*offy)
+  if(mouseX > width - 2*offx && mouseY > 7*offy && wifi)
   {
     manual = !manual;
     dataMemory = "GET /?dir=" + str(byte(9)) + " HTTP/1.0 \r\n";
@@ -178,11 +182,4 @@ void getData()
   data_in = int(split(input_lines[0], ','));
   for(int i = 0; i < data_in.length; i++)
     b_data[i] = data_in[i];
-}
-
-void resetAll()
-{
-  dataMemory = "GET /?dir=" + str(byte(11)) + " HTTP/1.0 \r\n";
-  c = new Client(this, "192.168.4.1", 80); // Connect to server on port 80
-  c.write(dataMemory);
 }
