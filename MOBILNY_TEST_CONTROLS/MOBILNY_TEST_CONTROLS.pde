@@ -44,7 +44,7 @@ void setup()
    b_vR = 0;
    b_vL = 0;
 
-   wifi = true;
+   wifi = false; //true;
    manual = true;
    screen_lock = false;
    
@@ -75,6 +75,7 @@ void draw()
 {
   background(240);
   //processData();
+  getData();
 
   if (wifi && (frameCount % 20 == 0)) 
   {
@@ -175,12 +176,17 @@ void sendData()
 
 void getData()
 {
-  if (c.active()) 
-  {
-    String[] input_lines = loadStrings("http://192.168.4.1");
-    //data_in = int(split(input_lines, ','));
-    println(input_lines);  
-  }
+  String[] input_lines = loadStrings("http://192.168.4.1");
+  
+  for(int i = 0; i < input_lines.length; i++)
+      println(str(i) + input_lines[i]);  
+      
+  /*
+  input = input_lines[6];
+  input = input.substring(0, input.length() - 7);
+  data_in = int(split(input, ','));
+  println(input_lines);  
+  */
 }
 
 void resetAll()
