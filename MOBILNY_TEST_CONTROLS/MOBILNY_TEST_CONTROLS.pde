@@ -5,9 +5,10 @@ String input;
 int []data_in;
 
 // ---------- STAŁE DO ODTWARZANIA --------
-final float cm = 1;  //ile pixeli to 1 cm 
-final float dt = 0.05;
-final int FRAMEINT = 10;
+final float cm = 1;         // ile pixeli to 1 cm 
+final float dt = 0.05; 
+final int FRAMEINT = 10;    // co ile klatek odbieramy dane
+final float WHEEL_R = 3.31; // [cm] promien kola
 
 // --------- INNE ZMIENNE -----------
 int offx, offy, off_c;
@@ -17,7 +18,7 @@ byte out, dir, out_dir;
 
 // ------- DANE ROBOTA ----------
 PVector b_pos, b_vel;
-float b_vR, b_vL;
+float dCr, dCl, dXr, dXl, dX, distF, distR, distL;
 float b_ang, b_width;
 int b_data_size;
 int []b_data;
@@ -41,8 +42,14 @@ void setup()
    b_vel = new PVector(0,0);
    b_ang = 0;
    b_width = 13*cm;
-   b_vR = 0;
-   b_vL = 0;
+   dCr = 0;
+   dCl = 0;
+   dXr = 0;
+   dXl = 0;
+   dX = 0;
+   distF = 0;
+   distR = 0;
+   distL = 0;
 
    wifi = true; 
    manual = true;
