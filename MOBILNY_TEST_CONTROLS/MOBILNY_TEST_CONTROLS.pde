@@ -1,8 +1,3 @@
-// -------- SERYJNE DO DEBUGGOWANIA ------
-import processing.serial.*;
-Serial port;  
-String inStr;
-
 // --------- ZMIENNE DO WIFI ---------
 import processing.net.*;
 Client c;
@@ -16,7 +11,7 @@ final float dt = 0.05;
 
 // --------- INNE ZMIENNE -----------
 int offx, offy, off_c;
-boolean simul, manual, screen_lock, wifi;
+boolean manual, screen_lock, wifi;
 
 byte out, dir, out_dir;
 
@@ -48,11 +43,7 @@ void setup()
    b_width = 13*cm;
    b_vR = 0;
    b_vL = 0;
-   
-   inStr = "";
 
-   // Simul true connects to serial port com5
-   simul = false; //true;  //false
    wifi = true;
    manual = true;
    screen_lock = false;
@@ -71,10 +62,6 @@ void setup()
    wall_pts = new ArrayList<PVector>();
    wall_w = 3*cm;
    
-   // connect to port only without simul mode
-   if(!simul)
-     port = new Serial(this, "COM5", 115200);
-    
    // connect to server in wifi mode 
    if(wifi)
    {
@@ -173,8 +160,7 @@ void mouseReleased()
              out_dir = 0;
               break;
           }
-          if(simul)
-            dir = out_dir;
+  
           //checkDir();
         } 
 }
@@ -189,47 +175,19 @@ void sendData()
 
 void getData()
 {
-  c.active();
-  c = new Client(this, "192.168.4.1", 80); // Connect to server on port 80
-  if (c.available() > 0) 
+  if (c.active()) 
   {
-    String input = c.readStringUntil('\n');   // tu jakieś readUntilByte czy cos wstawic
-    data_in = int(split(input, ','));
-    println(data_in);  
+    String[] input_lines = loadStrings("http://192.168.4.1");
+    //data_in = int(split(input_lines, ','));
+    println(input_lines);  
   }
 }
 
 void resetAll()
 {
-  if(!simul)
-  {
-    dataMemory = "GET /?dir=" + str(byte(11)) + " HTTP/1.0 \r\n";
-    c = new Client(this, "192.168.4.1", 80); // Connect to server on port 80
-    c.write(dataMemory);
-  }
+  dataMemory = "GET /?dir=" + str(byte(11)) + " HTTP/1.0 \r\n";
+  c = new Client(this, "192.168.4.1", 80); // Connect to server on port 80
+  c.write(dataMemory);
 }
 
-void serialEvent(Serial port) 
-{
-  inStr = port.readString(); 
-  print(inStr);
-  String in[] = inStr.split(",");
-  for(int i = 0; i < in.length; i++)
-    b_data[i] = int(in[i]);
-  
-  if(manual)
-  {
-    //port.write(0xff);
-    port.write(out_dir);
-  }
-  
-  /*
-  if(in = 0xff)
-  {
-    b_data[0] = read();
-    b_data[1] = read();
-    b_data[2] = read();
-  }
-  sendData();
-  */
-} 
+
