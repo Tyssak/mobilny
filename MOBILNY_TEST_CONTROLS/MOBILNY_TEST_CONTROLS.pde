@@ -80,11 +80,11 @@ void draw()
   {
     getData();
     sendData(); 
-  }
 
-  // ---- UPDATE BOTA ----
-  movBot();
-  
+    // ---- UPDATE BOTA ----
+    movBot();
+  }
+ 
   // ---- RYSOWANIE ----
   drawBot();
   drawMaze();
