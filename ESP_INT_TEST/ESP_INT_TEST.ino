@@ -32,11 +32,12 @@ WiFiEventHandler stationDisconnectedHandler;
 
 // ------------ INNE DANE ----------------
 int dir = 0, inDir = 0;
-boolean ledON = false;
 long prev_check = 0, check_interval = 100;
 float dFront = 0, dLeft = 0, dRight = 0; 
 float vR = 0, vL = 0;
 int sensor_ind = 0;
+
+boolean AUTOMATIC = false, LOOKING = false;
 
 int countR = 0, countL = 0, prevCR = 0, prevCL = 0, dCL = 0, dCR = 0;
 
@@ -119,15 +120,6 @@ void loop()
 {
   controls();
   server.handleClient();
-
-  //rec_get();
-  
-  // ------ PRZYJMOWANIE DANYCH Z USB ------
-  /*if (Serial.available()) 
-  {
-    inDir = Serial.read(); 
-    checkDirection();
-  }*/
 
   // ------- AKTUALIZACJE DANYCH Z CZUJNIKÓW -------
   if (millis() - prev_check > check_interval)
@@ -236,15 +228,14 @@ void getDistances()
 // -------------------- WYBRANIE KIERUNKU JAZDY ---------------------------------
 void checkDirection()
 {
-  // możliwe kombinacje nacisniętych klawiszy 
+  // możliwe kombinacje nacisniętych klawiszy/kierunki jazdy
   // 1 - [W}, 2 - [AW], 3 - [WD], 4 - [A], 5 - [D]
   // 6 - [S]. 7 - [AS], 8 - [SD], 0 - NULL
 
   // ustawienie odpowiednich wartosci na pinach IN1, IN2, IN3, IN4 mostka H
   if (inDir != dir) // zeby wklepac wartosci tylko jak sie zmienia sterowanie a nie w kazdej iteracji
   {
-    dir = inDir;
-    switch(dir)
+    switch(inDir)
     {
         case 1:
         case 2:
@@ -281,16 +272,35 @@ void checkDirection()
           digitalWrite(pOut3, LOW);
           digitalWrite(pOut4, HIGH);
           break;
+        
+        case 9: 
+          AUTOMATIC = !AUTOMATIC;
+          LOOKING = false;
+          break;
+
+        case 10:
+          LOOKING = !LOOKING;
+          break;
+
+        case 11:
+          resetData();
+          break;
 
         default:
           digitalWrite(pOut1, LOW);
           digitalWrite(pOut2, LOW);
           digitalWrite(pOut3, LOW);
           digitalWrite(pOut4, LOW);
+          AUTOMATIC = false;
+          LOOKING = false;
           break;
     }
-
-     setMotors(dir);
+    
+     if(inDir < 9)
+     {
+        dir = inDir;
+        setMotors(dir);
+     }
   }
 }
 
@@ -301,8 +311,7 @@ void setMotors(int num_dir)
   uL = 0;
   sum_errL = 0;
   sum_errR = 0;
-  
-        
+       
     switch(num_dir)
     {
         case 0:
@@ -344,28 +353,12 @@ void rec_get()
   checkDirection();
 
   // ------------- WYSYŁANIE DANYCH ------------
-  // ---------- TEST 1 ---------- //
-    
-    String dataMes = "GET /?dF=" + String(dFront) + " HTTP/1.0 \r\n";
-    server.send(200, "text/html", dataMes);
+  String dataMes = String(dir) + "," + String(dFront) + 
+      "," + String(dLeft) + "," + String(dRight) + "," + 
+      String(countR) + "," + String(countL) + "," + 
+      String(dCR) + "," + String(dCL) + "\n";
 
-    // ---------- TEST 2 ---------- //
-
-    /*
-      
-      HTTPClient http;
-
-      String serverPath = String(WiFi.softAPIP()) + "?dF=" + String(dFront);
-      http.begin(serverPath.c_str());
-      int httpResponseCode = http.GET();
-      
-      if (httpResponseCode > 0) 
-        server.send(200, "text/html", "HTTP Response code: " + String(httpResponseCode));
-      else 
-        server.send(200, "text/html", "Error code: " + String(httpResponseCode));
-      http.end();
-  */
-  
+  server.send(200, "text/html", dataMes);
 }
 
 // ---------- INFORMACJE O PODŁĄCZONYCH STACJACH -------------------------
