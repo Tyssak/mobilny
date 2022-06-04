@@ -189,6 +189,12 @@ void controls()
   analogWrite(pMotoVL, uL);
 }
 
+void resetData()
+{
+
+
+}
+
 // ------------------ OBSŁUGA CZUJNIKÓW -----------------------
 void getDistances()
 {
