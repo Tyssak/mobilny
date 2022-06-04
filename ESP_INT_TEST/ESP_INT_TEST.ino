@@ -20,7 +20,6 @@
 #define pEncL D3
 #define pEncR D4
 
-const int NUM_SLOTS = 20;
 const float WHEEL_R = 33.1;
 
 // ------------ DANE SERWERA ---------------
@@ -220,7 +219,6 @@ void getDistances()
        dRight = 0;
   }
 
-
   sensor_ind = (sensor_ind + 1)%3;
 }
 
@@ -315,9 +313,9 @@ void setMotors(int num_dir)
     {
         case 0:
         VRr = 0;
-        VLr = 0;
-        
+        VLr = 0;        
           break;
+
         case 1:
         case 4:
         case 5:
@@ -331,11 +329,13 @@ void setMotors(int num_dir)
         VRr = 3;
         VLr = 2;
           break;
+
         case 3:
         case 8:
         VRr = 2;
         VLr = 3;
           break; 
+
         default:
         VRr = 0;
         VLr = 0;
@@ -352,8 +352,8 @@ void rec_get()
   checkDirection();
 
   // ------------- WYSYŁANIE DANYCH ------------
-  String dataMes = String(dir) + "," + String(dFront) + 
-      "," + String(dLeft) + "," + String(dRight) + "," + 
+  String dataMes = String(dir) + "," + String(int(dFront)) + 
+      "," + String(int(dLeft)) + "," + String(int(dRight)) + "," + 
       String(countR) + "," + String(countL) + "," + 
       String(dCR) + "," + String(dCL) + "\n";
 
@@ -362,94 +362,24 @@ void rec_get()
 
 // ---------- INFORMACJE O PODŁĄCZONYCH STACJACH -------------------------
 
-void onStationConnected(const WiFiEventSoftAPModeStationConnected& evt) {
+void onStationConnected(const WiFiEventSoftAPModeStationConnected& evt) 
+{
   Serial.print("Station connected: ");
   Serial.println(macToString(evt.mac));
 }
 
-void onStationDisconnected(const WiFiEventSoftAPModeStationDisconnected& evt) {
+void onStationDisconnected(const WiFiEventSoftAPModeStationDisconnected& evt) 
+{
   Serial.print("Station disconnected: ");
   Serial.println(macToString(evt.mac));
 }
 
-String macToString(const unsigned char* mac) {
+String macToString(const unsigned char* mac) 
+{
   char buf[20];
   snprintf(buf, sizeof(buf), "%02x:%02x:%02x:%02x:%02x:%02x",
            mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
   return String(buf);
-}
-
-// ------------------------ MOTOR TESTING --------------
-void testDIRControl() {
-  // Set motors to maximum speed
-  // For PWM maximum possible values are 0 to 255
-  //digitalWrite(pMotoVL, HIGH);
-  //digitalWrite(pMotoVR, HIGH);
-  analogWrite(pMotoVL, 150);
-  analogWrite(pMotoVR, 150);
-  delay(1000);
-  
-  digitalWrite(pOut1, HIGH);
-  digitalWrite(pOut2, LOW);
-  digitalWrite(pOut3, HIGH);
-  digitalWrite(pOut4, LOW);
-  delay(2000);
-  
-  digitalWrite(pOut1, LOW);
-  digitalWrite(pOut2, HIGH);
-  digitalWrite(pOut3, LOW);
-  digitalWrite(pOut4, HIGH);
-  delay(2000);
-  
-  digitalWrite(pOut1, LOW);
-  digitalWrite(pOut2, LOW);
-  digitalWrite(pOut3, LOW);
-  digitalWrite(pOut4, LOW);
-}
-
-// This function lets you control speed of the motors
-void testPWMControl() {
-
-  digitalWrite(pOut1, HIGH);
-  digitalWrite(pOut2, LOW);
-  digitalWrite(pOut3, HIGH);
-  digitalWrite(pOut4, LOW);
-  
-  for (int i = 0; i < 256; i+= 5) {
-    analogWrite(pMotoVL, i);
-    analogWrite(pMotoVR, i);
-    delay(250);
-  }
-
-  for (int i = 255; i >= 0; i-=5) {
-    analogWrite(pMotoVL, i);
-    analogWrite(pMotoVR, i);
-    delay(250);
-  }
-  
-  digitalWrite(pOut1, LOW);
-  digitalWrite(pOut2, HIGH);
-  digitalWrite(pOut3, LOW);
-  digitalWrite(pOut4, HIGH);
-  delay(200);
-
-  for (int i = 0; i < 256; i+= 5) {
-    analogWrite(pMotoVL, i);
-    analogWrite(pMotoVR, i);
-    delay(250);
-  }
-
-  for (int i = 255; i >= 0; i-=5) {
-    analogWrite(pMotoVL, i);
-    analogWrite(pMotoVR, i);
-    delay(250);
-    
-  }
-  
-  digitalWrite(pOut1, LOW);
-  digitalWrite(pOut2, LOW);
-  digitalWrite(pOut3, LOW);
-  digitalWrite(pOut4, LOW);
 }
 
 // -------------------------------------------------------------------------------------------------------------------------
@@ -515,7 +445,7 @@ void resetData()
     }
 }
 
-// ---------------------
+// --------------------- LABIYNT ----------------
 void solve_maze()
 {
   void goRight(int);
