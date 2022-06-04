@@ -189,11 +189,6 @@ void controls()
   analogWrite(pMotoVL, uL);
 }
 
-void resetData()
-{
-
-
-}
 
 // ------------------ OBSŁUGA CZUJNIKÓW -----------------------
 void getDistances()
@@ -458,8 +453,8 @@ void testPWMControl() {
 }
 
 // -------------------------------------------------------------------------------------------------------------------------
-//  -------------------------------------------------------------------------------------------------------------------------
-//----------- DANE ALGORYTM LABIRYNT ----------
+// -------------------------------------------------------------------------------------------------------------------------
+// ----------- DANE ALGORYTM LABIRYNT ----------
 
 const int WEST = 1 ;  // binarnie 00000001
 const int SOUTH = 2 ; // binarnie 00000010
@@ -502,13 +497,25 @@ bool zawracanko = false;
 int *odwiedzono = new int[liczba_rzedow * liczba_kolumn - 1];
 
 //-------------PID - cz. odległości --------
-const float kp1 = 0.095, ki1 = 0.025, kd1 = 0.008; //do dostrojenia
-float err1 =0, perr1=0, sumerr1=0, derr1=0;
+const float kp1 = 0.095, ki1 = 0.025, kd1 = 0.008; // do dostrojenia
+float err1 = 0, perr1 = 0, sumerr1 = 0, derr1 = 0;
 
 //-------------PID - enkodery --------
-const float kp2 = 0.065, ki2 = 0.025, kd2 = 0.008; //do dostrojenia
-float err2 =0, perr2=0, sumerr2=0, derr2=0;
+const float kp2 = 0.065, ki2 = 0.025, kd2 = 0.008; // do dostrojenia
+float err2 = 0, perr2 = 0, sumerr2 = 0, derr2 = 0;
 
+// -------------------- RESETOWANIE DANYCH LABIRYNTU ---------------
+void resetData()
+{
+  for(int i = 0; i < liczba_kolumn - 1; i++) 
+    for(int j = 0; j < liczba_rzedow; j++)
+    {
+      odwiedzono[i*liczba_kolumn + j] = 0;
+      mapa[i*liczba_kolumn + j] = 0;
+    }
+}
+
+// ---------------------
 void solve_maze()
 {
   void goRight(int);
@@ -993,6 +1000,7 @@ void solve_maze()
     goF++;
   }
 }
+
 void goForward()
 {
   zawracanko = false;
@@ -1003,8 +1011,8 @@ void goForward()
   digitalWrite(pOut3, HIGH);
   digitalWrite(pOut4, LOW);
   setMotors(1);
-
 }
+
 void goForwardErr()
 {
   zawracanko = false;
@@ -1016,6 +1024,7 @@ void goForwardErr()
   digitalWrite(pOut4, LOW);
   setMotors(9);
 }
+
 void goRight(int kier)
 {
   zawracanko = false;
@@ -1045,6 +1054,7 @@ void goRight(int kier)
     kierunek = SOUTH;
   }
 }
+
 void goLeft(int kier)
 {
   zawracanko = false;
@@ -1073,6 +1083,7 @@ void goLeft(int kier)
     kierunek = NORTH;
   }
 }
+
 void Stop()
 {
   zawracanko = false;
@@ -1112,6 +1123,7 @@ void goBack(int kier)
     kierunek = WEST;
   }
 }
+
 int updateId(int id, int kier)
 {
   int ide = id;
@@ -1140,6 +1152,7 @@ int updateId(int id, int kier)
     return ide;
   }
 }
+
 void Right_test()
 {
     perr1 = err1;
@@ -1212,6 +1225,7 @@ void Right_test()
     Stop();
   }
 }
+
 void Forward_test()
 {
       perr1 = err1;
