@@ -1,7 +1,7 @@
 // --------- ZMIENNE DO WIFI ---------
 import processing.net.*;
 Client c;
-String input;
+String input, dataMemory;
 int []data_in;
 
 // ---------- STAŁE DO ODTWARZANIA --------
@@ -54,8 +54,9 @@ void setup()
    wifi = true; 
    manual = true;
    screen_lock = false;
-   
-   out = 0;
+
+   dataMemory = "";
+   input = "";
    out_dir = 0;
    dir = 0;
    
@@ -100,28 +101,28 @@ void draw()
 
 void mouseReleased()
 {
-  if(mouseX > width - offx && mouseY > 5*offy + offy/2 && mouseY < 6*offy && wifi)
+  if(wifi && mouseX > width - offx && mouseY > 5*offy + offy/2 && mouseY < 6*offy)
   {
     dataMemory = "GET /?dir=" + str(byte(11)) + " HTTP/1.0 \r\n";
-    c = new Client(this, "192.168.4.1", 80); // Connect to server on port 80
+    c = new Client(this, "192.168.4.1", 80); 
     c.write(dataMemory);
   }
   
-  if(mouseX > width - offx && mouseY > 6*offy && mouseY < 5*offy + 3*offy/2 && wifi)
+  if(wifi && mouseX > width - offx && mouseY > 6*offy && mouseY < 5*offy + 3*offy/2)
   {
      dataMemory = "GET /?dir=" + str(byte(10)) + " HTTP/1.0 \r\n";
-     c = new Client(this, "192.168.4.1", 80); // Connect to server on port 80
+     c = new Client(this, "192.168.4.1", 80); 
      c.write(dataMemory);
   }
     
   if(mouseX > width - offx && mouseY > 5*offy + 3*offy/2 && mouseY < 7*offy)
     screen_lock = !screen_lock;
    
-  if(mouseX > width - 2*offx && mouseY > 7*offy && wifi)
+  if(wifi && mouseX > width - 2*offx && mouseY > 7*offy)
   {
     manual = !manual;
     dataMemory = "GET /?dir=" + str(byte(9)) + " HTTP/1.0 \r\n";
-    c = new Client(this, "192.168.4.1", 80); // Connect to server on port 80
+    c = new Client(this, "192.168.4.1", 80); 
     c.write(dataMemory);
   }
   
@@ -178,9 +179,8 @@ void mouseReleased()
 void sendData()
 {
   dataMemory = "GET /?dir=" + str(out_dir) + " HTTP/1.0 \r\n";
-  c = new Client(this, "192.168.4.1", 80); // Connect to server on port 80
+  c = new Client(this, "192.168.4.1", 80); 
   c.write(dataMemory);
-  c.write("\r\n"); // Use the HTTP "GET" command to ask for a Web page
 }
 
 void getData()
