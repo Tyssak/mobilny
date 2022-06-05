@@ -6,6 +6,7 @@ void drawBot()
     translate(2*offx-b_pos.x, 3.5*offy-b_pos.y);
   else
     translate(2*offx, 3.5*offy);
+    
   pushMatrix();
   translate(b_pos.x, b_pos.y);
   rotate(b_ang);
@@ -50,17 +51,33 @@ void drawInterface()
   rect(width - offx/2, 4*offy, offx, 8*offy);
   
   fill(140);
+  if(mousePressed  && mouseX > width - offx && mouseY > 5*offy + offy/2 && mouseY < 6*offy)
+    strokeWeight(3);
+  else
+    strokeWeight(1);
+    
   rect(width - offx/2, 5*offy + 3*offy/4, offx, offy/2);
-  fill(140);
+  
+  if(mousePressed && mouseX > width - offx && mouseY > 6*offy && mouseY < 5*offy + 3*offy/2)
+    strokeWeight(3);
+  else
+    strokeWeight(1);
+    
   rect(width - offx/2, 5*offy + 5*offy/4, offx, offy/2);
   
   if(screen_lock)
     fill(220,0,0);
   else
     fill(140);
+ 
+  if(mousePressed && mouseX > width - offx && mouseY > 5*offy + 3*offy/2 && mouseY < 7*offy)
+     strokeWeight(3);
+  else
+    strokeWeight(1);
     
   rect(width - offx/2, 5*offy + 7*offy/4, offx, offy/2);
-   
+  strokeWeight(1);
+  
   fill(200);
   rect(2.5*offx, 7.5*offy, 5*offx, offy);
   
@@ -77,6 +94,7 @@ void drawInterface()
     fill(140);
     strokeWeight(1);
   }
+  
   quad(width, height, width, height - offy, 
     width - 0.8*offx, height - offy, width - 1.8*offx, height);
   
@@ -107,13 +125,16 @@ void drawInterface()
   text("LOCK", width - offx/2, 5*offy + 7*offy/4, offx, offy/2);
   textAlign(LEFT, CENTER);
  
-  text("-Data: ", width - offx/2, offy/4, offx, offy/2);
+  text("--Data--", width - offx/2, offy/4, offx, offy/2);
   text("-dir : " + str(b_data[0]), width - offx/2, 3*offy/4, offx, offy/2);
   text("-diF : " + str(b_data[1]), width - offx/2, 5*offy/4, offx, offy/2);
   text("-diR : " + str(b_data[2]), width - offx/2, 7*offy/4, offx, offy/2);
   text("-diL : " + str(b_data[3]), width - offx/2, 9*offy/4, offx, offy/2);
   text("-cR  : " + str(b_data[4]), width - offx/2, 11*offy/4, offx, offy/2);
   text("-cL  : " + str(b_data[5]), width - offx/2, 13*offy/4, offx, offy/2);
+  text("-dcL : " + str(b_data[6]), width - offx/2, 15*offy/4, offx, offy/2);
+  text("-dcR : " + str(b_data[7]), width - offx/2, 17*offy/4, offx, offy/2);
+  text("--------", width - offx/2, 19*offy/4, offx, offy/2);
 
   if(manual)
   {
@@ -154,7 +175,10 @@ void drawInterface()
     fill(255,0,0);
     textSize(offy/6);
     textAlign(LEFT, CENTER);
-    text("  ! - MODE: AUTOMATIC\n  ! - STATE: LOOKING", 2*offx, 7.25*offy, 4*offx, offy/2);
+    if(looking)
+      text("  ! - MODE: AUTOMATIC\n  ! - STATE: LOOKING", 2*offx, 7.25*offy, 4*offx, offy/2);
+    else
+      text("  ! - MODE: AUTOMATIC\n  ! - STATE: IDLE", 2*offx, 7.25*offy, 4*offx, offy/2);
   }
   
   popStyle();

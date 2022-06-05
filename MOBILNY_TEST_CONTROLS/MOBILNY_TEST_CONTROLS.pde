@@ -12,7 +12,7 @@ final float WHEEL_R = 3.31; // [cm] promien kola
 
 // --------- INNE ZMIENNE -----------
 int offx, offy, off_c;
-boolean manual, screen_lock, wifi;
+boolean manual, screen_lock, wifi, looking;
 
 byte out, dir, out_dir;
 
@@ -51,7 +51,7 @@ void setup()
    distR = 0;
    distL = 0;
 
-   wifi = true; 
+   wifi = false; //true; 
    manual = true;
    screen_lock = false;
 
@@ -101,23 +101,31 @@ void draw()
 
 void mouseReleased()
 {
+  // RESET 
   if(wifi && mouseX > width - offx && mouseY > 5*offy + offy/2 && mouseY < 6*offy)
   {
     dataMemory = "GET /?dir=" + str(byte(11)) + " HTTP/1.0 \r\n";
     c = new Client(this, "192.168.4.1", 80); 
     c.write(dataMemory);
+    wall_pts.clear();
   }
   
+  // FIND 
   if(wifi && mouseX > width - offx && mouseY > 6*offy && mouseY < 5*offy + 3*offy/2)
   {
      dataMemory = "GET /?dir=" + str(byte(10)) + " HTTP/1.0 \r\n";
      c = new Client(this, "192.168.4.1", 80); 
      c.write(dataMemory);
+     
+     if(!manual)
+       looking = !looking;
   }
     
+  // LOCK
   if(mouseX > width - offx && mouseY > 5*offy + 3*offy/2 && mouseY < 7*offy)
     screen_lock = !screen_lock;
-   
+  
+  // MAN/AUTO
   if(wifi && mouseX > width - 2*offx && mouseY > 7*offy)
   {
     manual = !manual;
@@ -126,7 +134,8 @@ void mouseReleased()
     c.write(dataMemory);
   }
   
-   if(manual)
+  // STEERING
+  if(manual)
    for(int r = 0; r < 3; r++)
       for(int c = 0; c < 3; c++)
         if(dist(mouseX,mouseY,offx+c*off_c , height - 2*offy + r*off_c ) < off_c/2)

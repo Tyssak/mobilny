@@ -117,7 +117,14 @@ void setup()
 // -------------- PĘTLA GŁÓWNA -----------
 void loop() 
 {
-  controls();
+  if(AUTOMATIC)
+  {
+     // solve_maze() ?
+    
+  }
+  else
+    controls();
+    
   server.handleClient();
 
   // ------- AKTUALIZACJE DANYCH Z CZUJNIKÓW -------
@@ -125,7 +132,7 @@ void loop()
   {
     getDistances();
     float dT = (millis() - prev_check)/1000.0;
-    vL = (countL - prevCL)/18.0/dT;
+    vL = (countL - prevCL)/18.0/dT;             // PREDKOSC OBROTOWA
     vR = (countR - prevCR)/18.0/dT;
     prevCL = countL;
     prevCR = countR;
@@ -225,7 +232,8 @@ void getDistances()
 // -------------------- WYBRANIE KIERUNKU JAZDY ---------------------------------
 void checkDirection()
 {
-  // możliwe kombinacje nacisniętych klawiszy/kierunki jazdy
+  // możliwe kombinacje nacisniętych klawiszy/
+  // kierunki jazdy
   // 1 - [W}, 2 - [AW], 3 - [WD], 4 - [A], 5 - [D]
   // 6 - [S]. 7 - [AS], 8 - [SD], 0 - NULL
 
@@ -293,7 +301,7 @@ void checkDirection()
           break;
     }
     
-     if(inDir < 9)
+     if(!AUTOMATIC && inDir < 9)
      {
         dir = inDir;
         setMotors(dir);
