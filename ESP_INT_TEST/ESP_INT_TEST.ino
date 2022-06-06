@@ -177,15 +177,17 @@ void loop()
 // ------------------- STEROWANIE SILNIKAMI ------------
 void controls()
 {
-  p_errL = errL;
-  p_errR = errR;
+  //p_errL = errL;
+ // p_errR = errR;
+    p_err=err;
 
-  errL = VLr - vL;
-  errR = VRr - vR;
+  //errL = VLr - vL;
+  //errR = VRr - vR;
+    err = vR - vL;
  
-  sum_errL += errL;
-  sum_errR += errR;
-  
+ // sum_errL += errL;
+ // sum_errR += errR;
+ /* 
   if(sum_errR > 10000)
      sum_errR = 10000;
 
@@ -197,7 +199,15 @@ void controls()
 
   uL = K*vL + Ki*sum_errL + Kd*dErrL;
   uR = 1.4*K*vR + Ki*sum_errR + Kd*dErrR;
+*/
+  sum_err +=err;
 
+  if(sum_err > 10000)
+    sum_err = 10000;
+
+  float dErr = err - p_err;
+  uR = VRr + K*err + Ki*sum_err + Kd*dErr;
+  uL = VRl - K*err - Ki*sum_err - Kd*dErr;
   uL = constrain(uL, 0, 250);
   uR = constrain(uR, 0, 250);
   
