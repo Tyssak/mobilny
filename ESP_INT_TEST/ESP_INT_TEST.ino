@@ -117,15 +117,15 @@ void setup()
 // -------------- PĘTLA GŁÓWNA -----------
 void loop() 
 {
-  server.handleClient();
-
   if(AUTOMATIC)
   {
      // solve_maze() ?
-     Serial.println("...");
+    
   }
   else
     controls();
+    
+  server.handleClient();
 
   // ------- AKTUALIZACJE DANYCH Z CZUJNIKÓW -------
   if (millis() - prev_check > check_interval)
@@ -357,11 +357,12 @@ void rec_get()
   // ------------ PRZYJMOWANIE DANYCH ----------
   // przyjęcie informacji wysyłanej przez apke 
   inDir = atoi(server.arg("dir").c_str());
+  Serial.println(inDir);
   checkDirection();
 
   // ------------- WYSYŁANIE DANYCH ------------
-  String dataMes = String(dir) + "," + String(dFront) + 
-      "," + String(dLeft) + "," + String(dRight) + "," + 
+  String dataMes = String(dir) + "," + String(int(dFront)) + 
+      "," + String(int(dLeft)) + "," + String(int(dRight)) + "," + 
       String(countR) + "," + String(countL) + "," + 
       String(dCR) + "," + String(dCL) + "\n";
 

@@ -128,12 +128,12 @@ void drawInterface()
   text("--Data--", width - offx/2, offy/4, offx, offy/2);
   text("-dir : " + str(b_data[0]), width - offx/2, 3*offy/4, offx, offy/2);
   text("-diF : " + str(b_data[1]), width - offx/2, 5*offy/4, offx, offy/2);
-  text("-diR : " + str(b_data[2]), width - offx/2, 7*offy/4, offx, offy/2);
-  text("-diL : " + str(b_data[3]), width - offx/2, 9*offy/4, offx, offy/2);
-  text("-cR  : " + str(b_data[4]), width - offx/2, 11*offy/4, offx, offy/2);
-  text("-cL  : " + str(b_data[5]), width - offx/2, 13*offy/4, offx, offy/2);
-  text("-dcL : " + str(b_data[6]), width - offx/2, 15*offy/4, offx, offy/2);
-  text("-dcR : " + str(b_data[7]), width - offx/2, 17*offy/4, offx, offy/2);
+  text("-diL : " + str(b_data[2]), width - offx/2, 7*offy/4, offx, offy/2);
+  text("-diR : " + str(b_data[3]), width - offx/2, 9*offy/4, offx, offy/2);
+  text("-dcR : " + str(dCr), width - offx/2, 11*offy/4, offx, offy/2);
+  text("-dcL : " + str(dCl), width - offx/2, 13*offy/4, offx, offy/2);
+  text("-auto: " + str(b_data[6]), width - offx/2, 15*offy/4, offx, offy/2);
+  text("-find: " + str(b_data[7]), width - offx/2, 17*offy/4, offx, offy/2);
   text("--------", width - offx/2, 19*offy/4, offx, offy/2);
 
   if(manual)

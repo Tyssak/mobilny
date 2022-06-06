@@ -7,7 +7,6 @@ int []data_in;
 // ---------- STAŁE DO ODTWARZANIA --------
 final float cm = 1;         // ile pixeli to 1 cm 
 final float dt = 0.05; 
-final int FRAMEINT = 10;    // co ile klatek odbieramy dane
 final float WHEEL_R = 3.31; // [cm] promien kola
 
 // --------- INNE ZMIENNE -----------
@@ -18,10 +17,15 @@ byte out, dir, out_dir;
 
 // ------- DANE ROBOTA ----------
 PVector b_pos, b_vel;
-float dCr, dCl, dXr, dXl, dX, distF, distR, distL;
+int dCr, dCl;
+float dXr, dXl, dX;
+int distF, distR, distL, pdistF, pdistR, pdistL;
+int pCr, pCl;
 float b_ang, b_width;
 int b_data_size;
 int []b_data;
+
+int fi = 0;
 
 // ----------- DANE LABIRYNTU --------
 ArrayList <PVector> wall_pts;
@@ -50,15 +54,17 @@ void setup()
    distF = 0;
    distR = 0;
    distL = 0;
+   pCl = 0;
+   pCr = 0;
 
-   wifi = false; //true; 
+   wifi = true; 
    manual = true;
    screen_lock = false;
 
    dataMemory = "";
    input = "";
    out_dir = 0;
-   dir = 0;
+   dir = 20;
    
    // information about robot
    b_data_size = 8;
@@ -66,14 +72,15 @@ void setup()
    for(int i = 0; i < b_data_size; i++)
      b_data[i] = 0;
 
+   b_data[0] = 20;
+    
    // walls
    wall_pts = new ArrayList<PVector>();
    wall_w = 3*cm;
    
    // connect to server in wifi mode 
    if(wifi)
-     c = new Client(this, "192.168.4.1", 80); // Replace with your server's IP and port
-     
+     c = new Client(this, "192.168.4.1", 80); // Replace with your server's IP and po
 }
 
 // ---------- PĘTLA GŁÓWNA ----------
@@ -81,14 +88,14 @@ void draw()
 {
   background(240);
   
+  fi++;
   // ---- ODBIERANIE DANYCH ----
-  if (wifi && (frameCount % FRAMEINT == 0)) 
+  if (wifi && fi == 20) 
   {
     getData();
-    sendData(); 
-
     // ---- UPDATE BOTA ----
     movBot();
+    fi = 0;
   }
  
   // ---- RYSOWANIE ----
@@ -141,7 +148,7 @@ void mouseReleased()
           switch(r*3 + c)
           {
             case 4:
-              out_dir = 0;
+              out_dir = 20;
             break;
         
             case 1:
@@ -177,9 +184,11 @@ void mouseReleased()
               break;
               
            default: //----
-             out_dir = 0;
+             out_dir = 20;
               break;
           }
+          
+          sendData();
        } 
 }
 
@@ -188,14 +197,13 @@ void sendData()
   dataMemory = "GET /?dir=" + str(out_dir) + " HTTP/1.0 \r\n";
   c = new Client(this, "192.168.4.1", 80); 
   c.write(dataMemory);
+  println("Sent");
 }
 
 void getData()
 {
   String[] input_lines = loadStrings("http://192.168.4.1");
-  data_in = int(split(input_lines[0], ','));
-  for(int i = 0; i < data_in.length; i++)
-    b_data[i] = data_in[i];
-
-  println(input_lines);
+  
+  if(input_lines.length > 0)
+    b_data = int(split(input_lines[0], ','));
 }
