@@ -117,15 +117,15 @@ void setup()
 // -------------- PĘTLA GŁÓWNA -----------
 void loop() 
 {
+  server.handleClient();
+
   if(AUTOMATIC)
   {
      // solve_maze() ?
-    
+     Serial.println("...");
   }
   else
     controls();
-    
-  server.handleClient();
 
   // ------- AKTUALIZACJE DANYCH Z CZUJNIKÓW -------
   if (millis() - prev_check > check_interval)
