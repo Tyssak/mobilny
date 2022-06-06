@@ -72,10 +72,8 @@ void setup()
    
    // connect to server in wifi mode 
    if(wifi)
-   {
      c = new Client(this, "192.168.4.1", 80); // Replace with your server's IP and port
-     c.write("GET jajo HTTP/1.0\r\n"); 
-   }  
+     
 }
 
 // ---------- PĘTLA GŁÓWNA ----------
