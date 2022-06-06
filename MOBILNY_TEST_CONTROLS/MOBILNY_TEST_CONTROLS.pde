@@ -196,4 +196,6 @@ void getData()
   data_in = int(split(input_lines[0], ','));
   for(int i = 0; i < data_in.length; i++)
     b_data[i] = data_in[i];
+
+  println(input_lines);
 }
