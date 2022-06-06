@@ -6,7 +6,7 @@
 #define pMotoVR D13
 #define pMotoVL D8
 
-#define pOut1 D14
+#define pOut1 D1
 #define pOut2 D11
 #define pOut3 D10
 #define pOut4 D9
@@ -30,9 +30,9 @@ WiFiEventHandler stationConnectedHandler;
 WiFiEventHandler stationDisconnectedHandler;
 
 // ------------ INNE DANE ----------------
-int dir = 0, inDir = 0;
-long prev_check = 0, check_interval = 100;
-float dFront = 0, dLeft = 0, dRight = 0; 
+int dir = 20, inDir = 20;
+long prev_check = 0, check_interval = 150;
+int dFront = 0, dLeft = 0, dRight = 0; 
 float vR = 0, vL = 0;
 int sensor_ind = 0;
 
@@ -45,6 +45,12 @@ const float K = 0.065, Ki = 0.025, Kd = 0.008;
 
 float errL = 0, p_errL = 0, sum_errL = 0, errR = 0, p_errR = 0, sum_errR = 0;
 float uR = 0, uL = 0, VRr = 0, VLr = 0;
+
+// --------- NOWE 
+
+float errc = 0, perrc = 0, serrc = 0;
+boolean ini = false;
+int cRstart = 0;
 
 // ----------- PRZERWANIA ENKODERÓW ---------
 IRAM_ATTR void incL()
@@ -117,15 +123,18 @@ void setup()
 // -------------- PĘTLA GŁÓWNA -----------
 void loop() 
 {
-  if(AUTOMATIC)
-  {
-     // solve_maze() ?
-    
-  }
-  else
-    controls();
-    
   server.handleClient();
+  
+  if(AUTOMATIC && LOOKING)
+  {
+    rectControl();
+    //solve_maze();
+  }
+
+  Serial.println(LOOKING);
+  
+  controls();
+   
 
   // ------- AKTUALIZACJE DANYCH Z CZUJNIKÓW -------
   if (millis() - prev_check > check_interval)
@@ -139,7 +148,7 @@ void loop()
     prev_check = millis();
     
     // -------- DEBUGGOWANIE W KONSOLI ------------
-    /*
+    
     Serial.print("Direction = ");
     Serial.println(dir);
     Serial.println(" ----- Distances: ------ ");
@@ -149,7 +158,8 @@ void loop()
     Serial.print(dRight);
     Serial.print(" , L = ");
     Serial.println(dLeft);
-    
+
+    /*
     Serial.println(" ----- v ------ ");
     Serial.print("vR = ");
     Serial.print(vR);
@@ -186,7 +196,7 @@ void controls()
   float dErrR = errR - p_errR;
 
   uL = K*vL + Ki*sum_errL + Kd*dErrL;
-  uR = K*vR + Ki*sum_errR + Kd*dErrR;
+  uR = 1.4*K*vR + Ki*sum_errR + Kd*dErrR;
 
   uL = constrain(uL, 0, 250);
   uR = constrain(uR, 0, 250);
@@ -254,18 +264,18 @@ void checkDirection()
 
         case 4:
           // prawy przód, lewy tył
-          digitalWrite(pOut1, HIGH);
-          digitalWrite(pOut2, LOW);
-          digitalWrite(pOut3, LOW);
-          digitalWrite(pOut4, HIGH);
-          break;
-          
-        case 5:
-          // lewy przód, prawy tył
           digitalWrite(pOut1, LOW);
           digitalWrite(pOut2, HIGH);
           digitalWrite(pOut3, HIGH);
           digitalWrite(pOut4, LOW);
+          break;
+          
+        case 5:
+          // lewy przód, prawy tył
+          digitalWrite(pOut1, HIGH);
+          digitalWrite(pOut2, LOW);
+          digitalWrite(pOut3, LOW);
+          digitalWrite(pOut4, HIGH); 
           break;
       
         case 6:
@@ -280,6 +290,7 @@ void checkDirection()
         
         case 9: 
           AUTOMATIC = !AUTOMATIC;
+          ini = false;
           LOOKING = false;
           break;
 
@@ -292,16 +303,10 @@ void checkDirection()
           break;
 
         default:
-          digitalWrite(pOut1, LOW);
-          digitalWrite(pOut2, LOW);
-          digitalWrite(pOut3, LOW);
-          digitalWrite(pOut4, LOW);
-          AUTOMATIC = false;
-          LOOKING = false;
           break;
     }
     
-     if(!AUTOMATIC && inDir < 9)
+     if(((inDir < 9 && inDir > 0 ) || inDir == 20 ))
      {
         dir = inDir;
         setMotors(dir);
@@ -319,7 +324,7 @@ void setMotors(int num_dir)
        
     switch(num_dir)
     {
-        case 0:
+        case 20:
         VRr = 0;
         VLr = 0;        
           break;
@@ -328,25 +333,23 @@ void setMotors(int num_dir)
         case 4:
         case 5:
         case 6:
-        VRr = 3;
-        VLr = 3;
+        VRr = 1;
+        VLr = 1;
           break;
           
         case 2:
         case 7:
-        VRr = 3;
-        VLr = 2;
+        VRr = 0.8;
+        VLr = 1;
           break;
 
         case 3:
         case 8:
-        VRr = 2;
-        VLr = 3;
+        VRr = 0.8;
+        VLr = 1;
           break; 
 
         default:
-        VRr = 0;
-        VLr = 0;
           break;
     }
 }
@@ -354,19 +357,44 @@ void setMotors(int num_dir)
 // ------------- PRZYJĘCIE DANYCH Z APLIKACJI (HTTP GET) ---------------
 void rec_get()
 {
-  // ------------ PRZYJMOWANIE DANYCH ----------
-  // przyjęcie informacji wysyłanej przez apke 
-  inDir = atoi(server.arg("dir").c_str());
-  Serial.println(inDir);
-  checkDirection();
-
   // ------------- WYSYŁANIE DANYCH ------------
-  String dataMes = String(dir) + "," + String(int(dFront)) + 
-      "," + String(int(dLeft)) + "," + String(int(dRight)) + "," + 
+  String dataMes = String(dir) + "," + String(dFront) + 
+      "," + String(dLeft) + "," + String(dRight) + "," + 
       String(countR) + "," + String(countL) + "," + 
-      String(dCR) + "," + String(dCL) + "\n";
+      String(AUTOMATIC) + "," + String(LOOKING) + "\n";
 
   server.send(200, "text/html", dataMes);
+  
+  // ------------ PRZYJMOWANIE D-ANYCH ----------
+  // przyjęcie informacji wysyłanej przez apke 
+  inDir = atoi(server.arg("dir").c_str());
+  if(inDir != 0)
+    checkDirection(); 
+}
+
+void rectControl()
+{
+  if(!ini)
+  {
+    inDir = 1;
+    checkDirection();
+    ini = true;
+  }
+
+  Serial.println(dir);
+   
+  if(dFront < 15)
+  {
+    inDir = 4;
+    checkDirection();
+    cRstart = countR;  
+  }
+
+  if(countR - cRstart > 4)
+  {
+    inDir = 1;
+    checkDirection();
+  }  
 }
 
 // ---------- INFORMACJE O PODŁĄCZONYCH STACJACH -------------------------
@@ -416,13 +444,13 @@ int *mapa = new int[liczba_rzedow * liczba_kolumn - 1];
 
 int kierunek = EAST; //początkowy zwrot robota
 
-const int go_time = 55; // takie go_time, aby dla funkcji Forward_test() przejechał długość = 1 segmentowi labiryntu
-const int trun_time = 17; //takie turn_time, żeby dawało skręt o 90st
-const int distanceF = 45; //dystans od ściany przód, aby czujnik ją zauważył
-const int distanceF2 = 30; //dystans od ściany przód, aby czujnik uznał, że trzeba skręcić
-const int distance = 100; //dystans od ściany bok, aby czujnik ją zauważył
+const int go_time = 10; // takie go_time, aby dla funkcji Forward_test() przejechał długość = 1 segmentowi labiryntu
+const int trun_time = 10; //takie turn_time, żeby dawało skręt o 90st
+const int distanceF = 22; //dystans od ściany przód, aby czujnik ją zauważył
+const int distanceF2 = 15; //dystans od ściany przód, aby czujnik uznał, że trzeba skręcić
+const int distance = 13; //dystans od ściany bok, aby czujnik ją zauważył
 
-const int good_distance = 58; //optymalna odległość robota od ściany bocznej
+const int good_distance = 10; //optymalna odległość robota od ściany bocznej
 long p_time = 0;
 int id;
 
@@ -452,20 +480,26 @@ void resetData()
       odwiedzono[i*liczba_kolumn + j] = 0;
       mapa[i*liczba_kolumn + j] = 0;
     }
+
+  dir = 20, inDir = 20;
+  prev_check = 0, check_interval = 150;
+  dFront = 0, dLeft = 0, dRight = 0; 
+  vR = 0, vL = 0;
+  sensor_ind = 0;
+
+  AUTOMATIC = false;
+  LOOKING = false;
+
+  countR = 0, countL = 0, prevCR = 0, prevCL = 0, dCL = 0, dCR = 0;
+  uR = 0, uL = 0, VRr = 0, VLr = 0;
 }
 
 // --------------------- LABIYNT ----------------
 void solve_maze()
 {
-  void goRight(int);
-  void goLeft(int);
-  void goForward();
-  void goForwardErr();
-  void goBack(int);
-  void Stop();
-  int updateId(int, int);
 
-  bool chamuj_sie = false;
+  bool hamuj_sie = false;
+  
   if (!initialise)
   {
     initialise = true;
@@ -475,38 +509,40 @@ void solve_maze()
       odwiedzono[i] = 0;
     }
   }
+  
   id = indeks;
-  getDistances();
+  //getDistances();
 
   perr1 = err1;
   perr2 = err2;
 
   float dT = (millis() - p_time) / 1000.0;
   p_time = millis();
+  
   if (straight_tunel && dRight < distance && dLeft < distance) //jak prosty tunel z ścianami z dwoch ston to PID stara się wyrównać odległość między nimi
   {                                                           
-    err1 =dRight - dLeft;
-    err2= vR - vL;
-  } else if (goF>0) //jak robot jedzie do przodu
+    err1 = dRight - dLeft;
+    err2 = vR - vL;
+  } else if (goF > 0) //jak robot jedzie do przodu
   {
-    if (dRight<dLeft && dRight < distance) //i ma ścianę tylko z prawej strony, to stara się wyrównać odległość od niej
+    if (dRight < dLeft && dRight < distance) //i ma ścianę tylko z prawej strony, to stara się wyrównać odległość od niej
     {
       err1 = dRight - good_distance;
-      err2= vR - vL;
+      err2 = vR - vL;
     }
     else if (dLeft<dRight && dLeft < distance) //i ma ścianę tylko z lewej strony, to stara się wyrównać odległość od niej
     {
       err1 = good_distance - dLeft;
-      err2= vR - vL;
+      err2 = vR - vL;
     }
     else //nie ma w pobliżu ścian to bierze PID tylko z enkoderów 
     {
-      err1=0;
+      err1 = 0;
       err2 = vR - vL;
     }
   } else //jak skręca to brak PID
   {
-    err1=0;
+    err1 = 0;
     err2=0;
     perr2=0;
     sumerr2=0;
@@ -537,7 +573,7 @@ void solve_maze()
 
   if (goRL == 0 && goF == 0 && !win)
   {
-    if (dRight == 0 && dLeft == 0)  //wykrywa, że bardzo daleko nie ma ściany, a więc wyjście z labiryntu
+    if (dRight == 0 && dLeft == 0 && dFront == 0)  //wykrywa, że bardzo daleko nie ma ściany, a więc wyjście z labiryntu
     { 
       Stop();
       win = true;
@@ -902,10 +938,10 @@ void solve_maze()
     else
     {
       goForwardErr();
-      chamuj_sie = true;
+      hamuj_sie = true;
     }
     
-    if (!chamuj_sie)
+    if (!hamuj_sie)
     {
       odwiedzono[indeks]++;
       indeks = updateId(id, kierunek);
@@ -961,16 +997,18 @@ void goForwardErr()
   digitalWrite(pOut2, LOW);
   digitalWrite(pOut3, HIGH);
   digitalWrite(pOut4, LOW);
-  setMotors(9);
+  vR = 0.5;
+  vL = 0.5;
 }
 
 void goRight(int kier)
 {
   zawracanko = false;
-  digitalWrite(pOut1, LOW);
-  digitalWrite(pOut2, HIGH);
-  digitalWrite(pOut3, HIGH);
-  digitalWrite(pOut4, LOW);
+  digitalWrite(pOut1, HIGH);
+  digitalWrite(pOut2, LOW);
+  digitalWrite(pOut3, LOW);
+  digitalWrite(pOut4, HIGH);
+ 
   setMotors(1);
   //// Serial.print("Skręcam w prawo");
   // sprawdzaj = 0;
@@ -1000,10 +1038,10 @@ void goLeft(int kier)
   // Serial.print("Skręcam w lewo");
   // sprawdzaj = 0;
   goRL++;
-  digitalWrite(pOut1, HIGH);
-  digitalWrite(pOut2, LOW);
-  digitalWrite(pOut3, LOW);
-  digitalWrite(pOut4, HIGH);
+  digitalWrite(pOut1, LOW);
+  digitalWrite(pOut2, HIGH);
+  digitalWrite(pOut3, HIGH);
+  digitalWrite(pOut4, LOW);
   setMotors(1);
   if (kier == NORTH)
   {
