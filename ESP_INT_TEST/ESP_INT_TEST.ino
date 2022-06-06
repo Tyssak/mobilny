@@ -360,8 +360,8 @@ void rec_get()
   checkDirection();
 
   // ------------- WYSYŁANIE DANYCH ------------
-  String dataMes = String(dir) + "," + String(int(dFront)) + 
-      "," + String(int(dLeft)) + "," + String(int(dRight)) + "," + 
+  String dataMes = String(dir) + "," + String(dFront) + 
+      "," + String(dLeft) + "," + String(dRight) + "," + 
       String(countR) + "," + String(countL) + "," + 
       String(dCR) + "," + String(dCL) + "\n";
 
