@@ -1130,7 +1130,7 @@ int updateId(int id, int kier)
       break;
   }
   //Serial.print("id= " + ide);
-  if (ide < 10 || ide > 52 || ide % 11 == 10 || ide % 11 == 9)
+  if (ide <  liczba_kolumn || ide >  liczba_kolumn*liczba_wierszy- liczba_kolumn || ide %  liczba_kolumn ==  liczba_kolumn-1 || ide % liczba_kolumn == 0)
   {
     return 0;
   }
