@@ -1080,7 +1080,8 @@ void Stop()
   digitalWrite(pOut2, LOW);
   digitalWrite(pOut3, LOW);
   digitalWrite(pOut4, LOW);
-  setMotors(0);
+  VLr=0;
+  VRr=0;
 }
 void goBack(int kier)
 {
