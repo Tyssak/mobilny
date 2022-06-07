@@ -474,11 +474,11 @@ bool zawracanko = false;
 int *odwiedzono = new int[liczba_rzedow * liczba_kolumn - 1];
 
 //-------------PID - cz. odległości --------
-const float kp1 = 0.095, ki1 = 0.025, kd1 = 0.008; // do dostrojenia
+const float kp1 = 0.135, ki1 = 0.025, kd1 = 0.008; // do dostrojenia
 float err1 = 0, perr1 = 0, sumerr1 = 0, derr1 = 0;
 
 //-------------PID - enkodery --------
-const float kp2 = 0.065, ki2 = 0.025, kd2 = 0.008; // do dostrojenia
+const float kp2 = 0.105, ki2 = 0.025, kd2 = 0.008; // do dostrojenia
 float err2 = 0, perr2 = 0, sumerr2 = 0, derr2 = 0;
 
 // -------------------- RESETOWANIE DANYCH LABIRYNTU ---------------
